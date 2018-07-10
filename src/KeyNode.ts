@@ -27,6 +27,11 @@ export default class KeyNode extends String {
 
     return this[PARENT_KEY] === null;
 
+  }  
+  get isTerminalKey():boolean {
+
+    return this[CHILDREN_KEYS].size === 0;
+
   }
 
   get parent():KeyNode{
