@@ -1,0 +1,24 @@
+{
+  "name": "key-value-hash",
+  "version": "1.0.0",
+  "description": "Map of object key values map.",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "mocha --opts ./mocha.opts",
+    "ts-build": "tsc",
+    "test-watch": "mocha  --opts ./mocha.opts --watch --watch-extensions ts tsx"
+  },
+  "author": "Michael Price <mikepricedev@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.4",
+    "@types/node": "^10.5.2",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-config": "github:raptor9g/tsConfig#v0.0.8",
+    "ts-mocha-opts": "github:raptor9g/tsMochaOpts#v0.0.7",
+    "ts-node": "^7.0.0",
+    "typescript": "^2.9.2"
+  }
+}

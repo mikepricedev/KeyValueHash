@@ -1,0 +1,12 @@
+{
+  "name": "objectmap",
+  "version": "1.0.0",
+  "description": "Flattens object in to key value map.",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ts-build": "tsc"
+  },
+  "author": "",
+  "license": "ISC"
+}
