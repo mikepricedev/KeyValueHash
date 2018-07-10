@@ -1,20 +1,20 @@
 import {expect} from 'chai';
-import Key from './Key';
+import KeyNode from './KeyNode';
 
 
-describe(`Key`,()=>{
+describe(`KeyNode`,()=>{
 
-  let fooKey = new Key('foo');
-  let fooBarKey = new Key('bar', fooKey);
-  let fooBazKey = new Key('baz', fooKey);
-  let fooBarQuxKey = new Key('qux', fooBarKey);
+  let fooKey = new KeyNode('foo');
+  let fooBarKey = new KeyNode('bar', fooKey);
+  let fooBazKey = new KeyNode('baz', fooKey);
+  let fooBarQuxKey = new KeyNode('qux', fooBarKey);
 
   before(()=>{
 
-    fooKey = new Key('foo');
-    fooBarKey = new Key('bar', fooKey);
-    fooBazKey = new Key('baz', fooKey);
-    fooBarQuxKey = new Key('qux', fooBarKey);
+    fooKey = new KeyNode('foo');
+    fooBarKey = new KeyNode('bar', fooKey);
+    fooBazKey = new KeyNode('baz', fooKey);
+    fooBarQuxKey = new KeyNode('qux', fooBarKey);
 
   })
 

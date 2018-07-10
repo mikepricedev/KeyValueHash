@@ -1,21 +1,21 @@
 import {expect} from 'chai';
-import Key from './Key';
-import RootKey from './RootKey';
+import KeyNode from './KeyNode';
+import RootKeyNode from './RootKeyNode';
 
 
-describe(`RootKey`,()=>{
+describe(`RootKeyNode`,()=>{
 
   let rootKeys = new Set();
   
-  let fooKey = new RootKey('foo', rootKeys);
-  let barKey = new RootKey('bar', rootKeys);
+  let fooKey = new RootKeyNode('foo', rootKeys);
+  let barKey = new RootKeyNode('bar', rootKeys);
 
   before(()=>{
 
     rootKeys = new Set();
   
-    fooKey = new RootKey('foo', rootKeys);
-    barKey = new RootKey('bar', rootKeys);
+    fooKey = new RootKeyNode('foo', rootKeys);
+    barKey = new RootKeyNode('bar', rootKeys);
 
   })
 
@@ -23,7 +23,7 @@ describe(`RootKey`,()=>{
 
     it(`Extends 'Key'.`,()=>{
 
-      expect(fooKey).to.be.instanceof(Key);
+      expect(fooKey).to.be.instanceof(KeyNode);
 
     });
 
