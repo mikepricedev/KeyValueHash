@@ -1,12 +1,12 @@
-import Key from './Key';
+import KeyNode from './KeyNode';
 
 const ROOT_KEYS:unique symbol = Symbol();
 
-export default class RootKey extends Key {
+export default class RootKeyNode extends KeyNode {
 
-  private readonly [ROOT_KEYS]:Set<RootKey>;
+  private readonly [ROOT_KEYS]:Set<RootKeyNode>;
 
-  constructor(key:string, rootKeys:Set<RootKey>){
+  constructor(key:string, rootKeys:Set<RootKeyNode>){
 
     super(key);
 
@@ -16,7 +16,7 @@ export default class RootKey extends Key {
 
   }
 
-  *siblings():IterableIterator<Key>{
+  *siblings():IterableIterator<RootKeyNode>{
 
     for(const sib of this[ROOT_KEYS]){
 

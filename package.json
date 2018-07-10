@@ -1,7 +1,7 @@
 {
   "name": "key-value-hash",
-  "version": "0.0.1",
-  "description": "Map of object key values map.",
+  "version": "1.0.1",
+  "description": "Deep hash map of object key/values and breadth first tree via key nodes describing object paths.",
   "main": "build/index.js",
   "scripts": {
     "test": "mocha --opts ./mocha.opts",

@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import KeyValueHash from './KeyValueHash';
-import RootKey from './RootKey';
+import RootKeyNode from './RootKeyNode';
 
 describe(`KeyValueHash`,()=>{
 
@@ -225,7 +225,7 @@ describe(`KeyValueHash`,()=>{
 
     describe('rootKeys',()=>{
 
-      it(`Returns IterableIterator<RootKey>, direct keys of object.`,()=>{
+      it(`Returns IterableIterator<RootKeyNode>, direct keys of object.`,()=>{
 
         const expectedPathValues = [
           ['foo',obj.foo],
@@ -238,7 +238,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(rootKey).to.be.instanceof(RootKey);
+          expect(rootKey).to.be.instanceof(RootKeyNode);
 
           expect(rootKey).property('dotNotatedPath').to.equal(path);
 

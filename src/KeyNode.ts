@@ -3,12 +3,12 @@ import KeyValueHash from './KeyValueHash';
 const PARENT_KEY:unique symbol = Symbol();
 const CHILDREN_KEYS:unique symbol = Symbol(); 
 
-export default class Key extends String {
+export default class KeyNode extends String {
 
-  private readonly [PARENT_KEY]:Key;
-  private readonly [CHILDREN_KEYS] = new Set<Key>();
+  private readonly [PARENT_KEY]:KeyNode;
+  private readonly [CHILDREN_KEYS] = new Set<KeyNode>();
 
-  constructor(key:string, parentKey:Key = null){
+  constructor(key:string, parentKey:KeyNode = null){
 
     super(key);
 
@@ -29,7 +29,7 @@ export default class Key extends String {
 
   }
 
-  get parent():Key{
+  get parent():KeyNode{
 
     return this[PARENT_KEY];
 
@@ -62,9 +62,9 @@ export default class Key extends String {
   }
 
   //Mehtods
-  *path():IterableIterator<Key>{
+  *path():IterableIterator<KeyNode>{
 
-    const path:Key[] = [this];
+    const path:KeyNode[] = [this];
 
     let pKey = this[PARENT_KEY];
 
@@ -84,13 +84,13 @@ export default class Key extends String {
 
   }
 
-  children():IterableIterator<Key>{
+  children():IterableIterator<KeyNode>{
 
     return this[CHILDREN_KEYS].values();
 
   }
 
-  *siblings():IterableIterator<Key>{
+  *siblings():IterableIterator<KeyNode>{
 
     const parent = this[PARENT_KEY];
 

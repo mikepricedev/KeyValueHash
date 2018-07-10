@@ -1,5 +1,5 @@
-import Key from './Key';
-import RootKey from './RootKey';
+import KeyNode from './KeyNode';
+import RootKeyNode from './RootKeyNode';
 
 function* entries(obj):IterableIterator<[string | number, any]>{
 
@@ -34,19 +34,19 @@ const OBJECT_KEY:unique symbol = Symbol();
 
 export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]> {
 
-  private readonly [KEY_VALUE_MAP]: Map<Key, any>;
-  private readonly [ROOT_KEYS]:Set<RootKey>;
+  private readonly [KEY_VALUE_MAP]: Map<KeyNode, any>;
+  private readonly [ROOT_KEYS]:Set<RootKeyNode>;
   private readonly [OBJECT_KEY]:TsrcObj;
 
   constructor(objToHash:TsrcObj){
 
-    const keyValueMap = new Map<Key, any>();
-    const rootKeys = new Set<RootKey>();
+    const keyValueMap = new Map<KeyNode, any>();
+    const rootKeys = new Set<RootKeyNode>();
 
     //Root Keys
     for(const [k, val] of entries(objToHash)){
 
-      const rootKey = new RootKey(k.toString(), rootKeys);
+      const rootKey = new RootKeyNode(k.toString(), rootKeys);
 
       keyValueMap.set(rootKey, val);
 
@@ -58,7 +58,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
         for(const [k, val] of entries(pKeyVal)){
 
-          const key = new Key(k.toString(), pKey);
+          const key = new KeyNode(k.toString(), pKey);
 
           keyValueMap.set(key, val);
 
@@ -88,13 +88,13 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   }
 
   //Methods
-  entries():IterableIterator<[Key, any]>{
+  entries():IterableIterator<[KeyNode, any]>{
 
     return this[KEY_VALUE_MAP].entries();
   
   }
  
-  keys():IterableIterator<Key>{
+  keys():IterableIterator<KeyNode>{
   
     return this[KEY_VALUE_MAP].keys();
   
@@ -106,13 +106,13 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   
   }
 
-  rootKeys():IterableIterator<RootKey>{
+  rootKeys():IterableIterator<RootKeyNode>{
 
     return this[ROOT_KEYS].values();
 
   }
 
-  [Symbol.iterator]():IterableIterator<[Key, any]>{
+  [Symbol.iterator]():IterableIterator<[KeyNode, any]>{
 
     return this[KEY_VALUE_MAP][Symbol.iterator]();
 
