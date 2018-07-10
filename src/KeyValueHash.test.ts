@@ -252,6 +252,66 @@ describe(`KeyValueHash`,()=>{
 
     });
 
+    describe('has',()=>{
+
+      it(`Returns true when key node exsists in hash.`,()=>{
+
+        const DNE = new RootKeyNode('DNE',new Set());
+
+        expect(keyValueHash.has(DNE)).to.be.false
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys()){
+
+          expect(keyValueHash.has(key)).to.be.true
+
+          i++;
+
+        }
+
+        expect(i).to.equal(keyValueHash.size);
+
+      });
+
+    });
+
+    describe('get',()=>{
+
+      it(`Returns value at KeyNode.`,()=>{
+
+        const expectedPathValues = [
+          ['foo',obj.foo],
+          ['quux',obj.quux],
+          ['foo.bar',obj.foo.bar],
+          ['foo.baz',obj.foo.baz],
+          ['quux.0',obj.quux[0]],
+          ['quux.1',obj.quux[1]],
+          ['quux.2',obj.quux[2]],
+          ['foo.baz.0',obj.foo.baz[0]],
+          ['foo.baz.1',obj.foo.baz[1]],
+          ['foo.baz.0.qux',obj.foo.baz[0].qux],
+          ['foo.baz.1.qux',obj.foo.baz[1].qux],
+        ];
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys()){
+
+          let [,value] = expectedPathValues[i];
+
+          expect(keyValueHash.get(key)).to.equal(value);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(keyValueHash.size);
+
+      });
+
+    });
+
   });
 
 });

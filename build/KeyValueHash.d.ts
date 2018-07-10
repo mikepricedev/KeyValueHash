@@ -14,6 +14,8 @@ export default class KeyValueHash<TsrcObj extends object | any[] = object | any[
     keys(): IterableIterator<KeyNode>;
     values(): IterableIterator<any>;
     rootKeys(): IterableIterator<RootKeyNode>;
+    has(keyNode: KeyNode): boolean;
+    get(keyNode: KeyNode): any;
     [Symbol.iterator](): IterableIterator<[KeyNode, any]>;
     readonly [Symbol.toStringTag]: string;
 }
