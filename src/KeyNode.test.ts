@@ -41,6 +41,20 @@ describe(`KeyNode`,()=>{
 
     });
 
+    describe(`isTerminalKey`,()=>{
+
+      it(`Returns true when key does not have children and false when it has children.`,()=>{
+
+        expect(fooKey).property('isTerminalKey').to.be.false;
+        expect(fooBarKey).property('isTerminalKey').to.be.false;
+        expect(fooBazKey).property('isTerminalKey').to.be.true;
+        expect(fooBarQuxKey).property('isTerminalKey').to.be.true;
+
+
+      });
+
+    });
+
     describe(`parent`,()=>{
 
       it(`Returns parent key.`,()=>{

@@ -5,6 +5,7 @@ export default class KeyNode extends String {
     private readonly [CHILDREN_KEYS];
     constructor(key: string, parentKey?: KeyNode);
     readonly isRootKey: boolean;
+    readonly isTerminalKey: boolean;
     readonly parent: KeyNode;
     readonly [Symbol.toStringTag]: string;
     readonly dotNotatedPath: string;
