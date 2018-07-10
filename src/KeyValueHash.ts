@@ -112,6 +112,18 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
   }
 
+  has(keyNode:KeyNode):boolean{
+
+    return this[KEY_VALUE_MAP].has(keyNode);
+
+  }
+
+  get(keyNode:KeyNode):any{
+
+    return this[KEY_VALUE_MAP].get(keyNode);
+
+  }
+
   [Symbol.iterator]():IterableIterator<[KeyNode, any]>{
 
     return this[KEY_VALUE_MAP][Symbol.iterator]();
