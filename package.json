@@ -1,6 +1,6 @@
 {
   "name": "key-value-hash",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Deep hash map of object key/values and breadth first tree via key nodes describing object paths.",
   "main": "build/index.js",
   "scripts": {
