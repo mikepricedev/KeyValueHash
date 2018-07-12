@@ -66,6 +66,24 @@ export default class KeyNode extends String {
 
   }
 
+  get depth():number {
+
+    let depth = 0;
+
+    let pKey = this[PARENT_KEY];
+
+    while(pKey !== null){
+
+      depth++;
+
+      pKey = pKey[PARENT_KEY];
+
+    }
+
+    return depth;
+
+  }
+
   //Mehtods
   *path():IterableIterator<KeyNode>{
 

@@ -10,6 +10,7 @@ export default class KeyNode extends String {
     readonly [Symbol.toStringTag]: string;
     readonly dotNotatedPath: string;
     readonly numChildren: number;
+    readonly depth: number;
     path(): IterableIterator<KeyNode>;
     children(): IterableIterator<KeyNode>;
     siblings(): IterableIterator<KeyNode>;

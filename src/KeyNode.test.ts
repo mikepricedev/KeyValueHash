@@ -91,6 +91,19 @@ describe(`KeyNode`,()=>{
 
     });
 
+    describe(`depth`,()=>{
+
+      it(`Returns node depth of key.`,()=>{
+
+        expect(fooKey).property('depth').to.equal(0);
+        expect(fooBazKey).property('depth').to.equal(1);
+        expect(fooBarKey).property('depth').to.equal(1);
+        expect(fooBarQuxKey).property('depth').to.equal(2);
+
+      });
+
+    });
+
   });
 
   describe('Methods',()=>{
