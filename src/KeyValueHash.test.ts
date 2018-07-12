@@ -183,9 +183,35 @@ describe(`KeyValueHash`,()=>{
 
       });
 
+      it(`Takes optional key literal filters.`,()=>{
+
+        const filters = ['bar', 1];
+
+        const expectedPathValues = [
+          ['foo.bar',obj.foo.bar],
+          ['quux.1',obj.quux[1]],
+          ['foo.baz.1',obj.foo.baz[1]],
+        ];
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys(...filters)){
+
+          let [path] = expectedPathValues[i];
+
+          expect(key).property('dotNotatedPath').to.equal(path);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
     });
 
-    describe(`keys`,()=>{
+    describe(`values`,()=>{
 
       it(`Returns IterableIterator<@value>, breadth first value of keys.`,()=>{
 

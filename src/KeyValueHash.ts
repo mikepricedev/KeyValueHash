@@ -94,9 +94,36 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   
   }
  
-  keys():IterableIterator<KeyNode>{
-  
-    return this[KEY_VALUE_MAP].keys();
+  *keys(...keyLiterals:(string | number)[]):IterableIterator<KeyNode>{
+    
+    const keysIter = this[KEY_VALUE_MAP].keys();
+
+    if(keyLiterals.length === 0){
+
+      yield* keysIter;
+
+      return;
+
+    }
+
+    //Key literal filter
+    const keyLiteralStrs = new Set<string>();
+
+    for(const keyLiteral of keyLiterals){
+
+      keyLiteralStrs.add(keyLiteral.toString());
+
+    }
+
+    for(const keyNode of keysIter){
+
+      if(keyLiteralStrs.has(keyNode.toString())){
+
+        yield keyNode;
+
+      }
+
+    }
   
   }
  
