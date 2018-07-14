@@ -1,42 +1,54 @@
 import KeyValueHash from './KeyValueHash';
+import Path from './Path';
 
-const PARENT_KEY:unique symbol = Symbol();
-const CHILDREN_KEYS:unique symbol = Symbol(); 
+const PARENT:unique symbol = Symbol();
+const CHILDREN:unique symbol = Symbol();
+const IS_ROOT_KEY:unique symbol = Symbol();
+const DEPTH:unique symbol = Symbol();
+const PATH:unique symbol = Symbol();
+const PARENTS:unique symbol = Symbol();
+
 
 export default class KeyNode extends String {
 
-  private readonly [PARENT_KEY]:KeyNode;
-  private readonly [CHILDREN_KEYS] = new Set<KeyNode>();
+  private readonly [PARENT]:KeyNode;
+  private readonly [CHILDREN] = new Set<KeyNode>();
+  private readonly [IS_ROOT_KEY]:boolean;
+  private [PARENTS]:Set<KeyNode>;
+  private [DEPTH]:number;
+  private [PATH]:Path;
 
   constructor(key:string, parentKey:KeyNode = null){
 
     super(key);
 
-    this[PARENT_KEY] = parentKey;
+    this[PARENT] = parentKey;
 
     if(parentKey !== null){
 
-      parentKey[CHILDREN_KEYS].add(this);
+      parentKey[CHILDREN].add(this);
 
     }
+
+    this[IS_ROOT_KEY] = this[PARENT] === null;
 
   }
 
   //Accessors
   get isRootKey():boolean {
 
-    return this[PARENT_KEY] === null;
+    return this[IS_ROOT_KEY];
 
   }  
   get isTerminalKey():boolean {
 
-    return this[CHILDREN_KEYS].size === 0;
+    return this[CHILDREN].size === 0;
 
   }
 
   get parent():KeyNode{
 
-    return this[PARENT_KEY];
+    return this[PARENT];
 
   }
 
@@ -46,76 +58,90 @@ export default class KeyNode extends String {
   
   }
 
-  get dotNotatedPath():string{
+  get path():Path{
 
-    let path:string[] = [];
+    //Get and cache depth; lazy
+    if(this[PATH] === undefined){
 
-    for(const key of this.path()){
+      let path:KeyNode[] = [this];
 
-      path.push(key.toString());
+      for(const parent of this.parents()){
+
+        path.unshift(parent);
+
+      }
+
+      this[PATH] = new Path(path);
 
     }
 
-    return path.join('.');
+    return this[PATH];
 
   }
 
   get numChildren():number{
 
-    return this[CHILDREN_KEYS].size;
+    return this[CHILDREN].size;
 
   }
 
   get depth():number {
 
-    let depth = 0;
+    //Get and cache depth; lazy
+    if(this[DEPTH] === undefined){
 
-    let pKey = this[PARENT_KEY];
+      let depth = 0;
 
-    while(pKey !== null){
+      for(const pKey of this.parents()){
 
-      depth++;
+        depth++;
 
-      pKey = pKey[PARENT_KEY];
+      }
+
+      this[DEPTH] = depth;
 
     }
 
-    return depth;
+    return this[DEPTH];
 
   }
 
   //Mehtods
-  *path():IterableIterator<KeyNode>{
+  parents():IterableIterator<KeyNode>{
 
-    const path:KeyNode[] = [this];
+    //Get and cache parents; lazy
+    if(this[PARENTS] === undefined){
 
-    let pKey = this[PARENT_KEY];
+      let pKeys = new Set<KeyNode>();
 
-    while(pKey !== null){
+      let pKey = this[PARENT];
 
-      path.push(pKey);
+      while(pKey !== null){
 
-      pKey = pKey[PARENT_KEY];
+        pKeys.add(pKey);
+
+        pKey = pKey[PARENT]
+
+      }
+
+      this[PARENTS] = pKeys;
 
     }
 
-    while(path.length > 0){
-
-      yield path.pop();
-
-    }
-
+    return this[PARENTS].values();
+  
   }
 
   children():IterableIterator<KeyNode>{
 
-    return this[CHILDREN_KEYS].values();
+    return this[CHILDREN].values();
 
   }
 
   *siblings():IterableIterator<KeyNode>{
 
-    const parent = this[PARENT_KEY];
+    //NOTE: Not cached b/c can increase.
+    const parent = this[PARENT];
 
     if(parent === null){
 

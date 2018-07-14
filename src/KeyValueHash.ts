@@ -1,7 +1,8 @@
 import KeyNode from './KeyNode';
 import RootKeyNode from './RootKeyNode';
+import Path from './Path';
 
-function* entries(obj):IterableIterator<[string | number, any]>{
+const entries = function*(obj):IterableIterator<[string | number, any]>{
 
   if(Array.isArray(obj)){
 
@@ -28,15 +29,24 @@ function* entries(obj):IterableIterator<[string | number, any]>{
 
 }
 
+const fromKeyNodeToRootKey = function*(keyNode:KeyNode){
+
+  yield keyNode;
+  yield* keyNode.parents();
+
+}
+
 const KEY_VALUE_MAP:unique symbol = Symbol();
 const ROOT_KEYS:unique symbol = Symbol();
-const OBJECT_KEY:unique symbol = Symbol();
+const SRC_OBJECT:unique symbol = Symbol();
+
+const INDEX_WILDCARD:unique symbol = Symbol();
 
 export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]> {
 
   private readonly [KEY_VALUE_MAP]: Map<KeyNode, any>;
   private readonly [ROOT_KEYS]:Set<RootKeyNode>;
-  private readonly [OBJECT_KEY]:TsrcObj;
+  private readonly [SRC_OBJECT]:TsrcObj;
 
   constructor(objToHash:TsrcObj){
 
@@ -70,7 +80,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
     this[KEY_VALUE_MAP] = keyValueMap;
     this[ROOT_KEYS] = rootKeys;
-    this[OBJECT_KEY] = objToHash;
+    this[SRC_OBJECT] = objToHash;
 
   }
 
@@ -83,22 +93,36 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
   get srcObject():TsrcObj{
 
-    return this[OBJECT_KEY];
+    return this[SRC_OBJECT];
 
   }
 
   //Methods
-  entries():IterableIterator<[KeyNode, any]>{
+  *entries(...keyFilters:(string | number)[]):IterableIterator<[KeyNode, any]>{
 
-    return this[KEY_VALUE_MAP].entries();
+    if(keyFilters.length === 0){
+
+      yield *this[KEY_VALUE_MAP].entries();
+
+      return;
+
+    }
+
+    const keyValueMap =  this[KEY_VALUE_MAP];
+
+    for(const key of this.keys(...keyFilters)){
+
+      yield [key, keyValueMap.get(key)];
+
+    }
   
   }
  
-  *keys(...keyLiterals:(string | number)[]):IterableIterator<KeyNode>{
+  *keys(...keyFilters:(string | number)[]):IterableIterator<KeyNode>{
     
     const keysIter = this[KEY_VALUE_MAP].keys();
 
-    if(keyLiterals.length === 0){
+    if(keyFilters.length === 0){
 
       yield* keysIter;
 
@@ -106,30 +130,127 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
     }
 
-    //Key literal filter
-    const keyLiteralStrs = new Set<string>();
+    //Build Key literal and path filters
+    interface IKeyfiltersTree extends Map<string | symbol, IKeyfiltersTree>{}
 
-    for(const keyLiteral of keyLiterals){
+    const keyFilterTree:IKeyfiltersTree = new Map();
 
-      keyLiteralStrs.add(keyLiteral.toString());
+    for(const keyFilter of keyFilters){
 
-    }
+      let curKeyFilterNode = keyFilterTree;
 
-    for(const keyNode of keysIter){
+      const path = Array.from(new Path(keyFilter));
 
-      if(keyLiteralStrs.has(keyNode.toString())){
 
-        yield keyNode;
+      //NOTE: Path searches happen from KeyNode to parent i.e. in reverse.
+      while(path.length > 0){
+
+        let pathKey:string | symbol = path.pop();
+
+        switch (pathKey) {
+          
+          //Set wildcards  
+          case "*":
+            
+            pathKey = INDEX_WILDCARD;
+            break;
+          
+          //Unescape wildcard key  
+          case "\\*":
+            
+            pathKey = "*";
+            break;
+        
+        }
+
+        if(curKeyFilterNode.has(pathKey)){
+
+          curKeyFilterNode = curKeyFilterNode.get(pathKey);
+
+          //Existing less complex fitler overides current query.
+          if(curKeyFilterNode.size === 0){
+
+            break;
+
+          }
+
+        } else {
+
+          let childKeyFilterNode = new Map();
+
+          curKeyFilterNode.set(pathKey, childKeyFilterNode);
+
+          curKeyFilterNode = childKeyFilterNode;
+
+        }
+
+      }
+
+      //Override more complex filter.
+      if(curKeyFilterNode.size > 0){
+
+        curKeyFilterNode.clear();
 
       }
 
     }
+
+    //Find Matching KeyNodes
+    for(const keyNode of keysIter){
+
+      let curKeyFilterNode = keyFilterTree;
+
+      for(const curKeyNode of fromKeyNodeToRootKey(keyNode)){
+
+        const curKeyLiteral = curKeyNode.toString();
+
+        if(curKeyFilterNode.has(INDEX_WILDCARD)){
+        
+          curKeyFilterNode = curKeyFilterNode.get(INDEX_WILDCARD);
+
+        } else if(curKeyFilterNode.has(curKeyLiteral)){
+
+          curKeyFilterNode = curKeyFilterNode.get(curKeyLiteral);
+        
+        //NO matches stop  
+        } else {
+
+          break;
+
+        }
+
+        //Match!
+        if(curKeyFilterNode.size === 0){
+
+          yield keyNode;
+
+          break; 
+
+        }
+
+      }
+      
+    }
   
   }
  
-  values():IterableIterator<any>{
-  
-    return this[KEY_VALUE_MAP].values();
+  *values(...keyFilters:(string | number)[]):IterableIterator<any>{
+    
+    if(keyFilters.length === 0){
+
+      yield* this[KEY_VALUE_MAP].values();
+
+      return;
+
+    }
+
+    const keyValueMap =  this[KEY_VALUE_MAP];
+
+    for(const key of this.keys(...keyFilters)){
+
+      yield keyValueMap.get(key);
+
+    }
   
   }
 

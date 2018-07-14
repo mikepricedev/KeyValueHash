@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import KeyNode from './KeyNode';
+import Path from './Path';
 
 
 describe(`KeyNode`,()=>{
@@ -66,13 +67,29 @@ describe(`KeyNode`,()=>{
 
     });
 
-    describe(`dotNotatedPath`,()=>{
+    describe('path',()=>{
 
-      it(`Returns path to and including key in dot notation.`,()=>{
+      it(`Returns 'Path' instance representing path to key from root to and including key.`,()=>{
 
-        expect(fooKey).property('dotNotatedPath').to.equal('foo');
-        expect(fooBazKey).property('dotNotatedPath').to.equal('foo.baz');
-        expect(fooBarQuxKey).property('dotNotatedPath').to.equal('foo.bar.qux');
+        expect(fooKey).property('path').to.be.instanceof(Path);
+        expect(fooKey.path.toString()).deep.equal('foo');
+
+        expect(fooBazKey).property('path').to.be.instanceof(Path);
+        expect(fooBazKey.path.toString()).deep.equal('foo.baz');
+
+        expect(fooBarKey).property('path').to.be.instanceof(Path);
+        expect(fooBarKey.path.toString()).deep.equal('foo.bar');
+
+        expect(fooBarQuxKey).property('path').to.be.instanceof(Path);
+        expect(fooBarQuxKey.path.toString()).deep.equal('foo.bar.qux');
+
+      });
+
+      it(`Caches 'Path' instance and returns same instance on subsquent gets.`,()=>{
+
+        const path = fooBarQuxKey.path;
+
+        expect(fooBarQuxKey).property('path').to.equal(path);
 
       });
 
@@ -107,19 +124,6 @@ describe(`KeyNode`,()=>{
   });
 
   describe('Methods',()=>{
-
-    describe('path',()=>{
-
-      it(`Returns IterableIterator<Key> of parent paths from root to and including key.`,()=>{
-
-        expect(Array.from(fooKey.path())).deep.equal([fooKey]);
-        expect(Array.from(fooBazKey.path())).deep.equal([fooKey, fooBazKey]);
-        expect(Array.from(fooBarKey.path())).deep.equal([fooKey, fooBarKey]);
-        expect(Array.from(fooBarQuxKey.path())).deep.equal([fooKey, fooBarKey, fooBarQuxKey]);
-
-      });
-
-    });
 
     describe('children',()=>{
 

@@ -69,7 +69,7 @@ describe(`KeyValueHash`,()=>{
 
         let [path, value] = expectedPathValues[i];
 
-        expect(key).property('dotNotatedPath').to.equal(path);
+        expect(key.path.toString()).to.equal(path);
 
         expect(val).to.equal(value);
 
@@ -111,44 +111,6 @@ describe(`KeyValueHash`,()=>{
 
   describe('Methods',()=>{
 
-    describe(`entries`,()=>{
-
-      it(`Returns IterableIterator<Key, @value>, breadth first key/value hash map of object.`,()=>{
-
-        const expectedPathValues = [
-          ['foo',obj.foo],
-          ['quux',obj.quux],
-          ['foo.bar',obj.foo.bar],
-          ['foo.baz',obj.foo.baz],
-          ['quux.0',obj.quux[0]],
-          ['quux.1',obj.quux[1]],
-          ['quux.2',obj.quux[2]],
-          ['foo.baz.0',obj.foo.baz[0]],
-          ['foo.baz.1',obj.foo.baz[1]],
-          ['foo.baz.0.qux',obj.foo.baz[0].qux],
-          ['foo.baz.1.qux',obj.foo.baz[1].qux],
-        ];
-
-        let i = 0;
-
-        for(const [key, val] of keyValueHash.entries()){
-
-          let [path, value] = expectedPathValues[i];
-
-          expect(key).property('dotNotatedPath').to.equal(path);
-
-          expect(val).to.equal(value);
-
-          i++;
-
-        }
-
-        expect(i).to.equal(keyValueHash.size);
-
-      });
-
-    });
-
     describe(`keys`,()=>{
 
       it(`Returns IterableIterator<Key>, breadth first key hash map of object.`,()=>{
@@ -173,7 +135,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key).property('dotNotatedPath').to.equal(path);
+          expect(key.path.toString()).to.equal(path);
 
           i++;
 
@@ -199,7 +161,195 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key).property('dotNotatedPath').to.equal(path);
+          expect(key.path.toString()).to.equal(path);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
+      it(`Takes partial dot-notated path filters with the last key being the target key literal.`,
+        ()=>{
+
+        const filters = ['0.qux', 'quux.2'];
+
+        const expectedPathValues = [
+          ['quux.2',obj.quux[2]],
+          ['foo.baz.0.qux',obj.foo.baz[0].qux],
+        ];
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys(...filters)){
+
+          let [path] = expectedPathValues[i];
+
+          expect(key.path.toString()).to.equal(path);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
+      it(`Dot-notated path filters can contain a wildcard key "*".`,()=>{
+
+        let obj = {
+
+          foo:{
+
+            bar:[
+              {qux:Symbol()},
+              {qux:Symbol()},
+            ],
+            baz:[
+              {qux:Symbol()},
+              {qux:Symbol()},
+            ]
+
+          },
+
+          quux:[1,2,3]
+
+        }
+
+        let keyValueHash = new KeyValueHash(obj);
+
+        const filters = ['baz.*.qux'];
+
+        const expectedPathValues = [
+          ['foo.baz.0.qux',obj.foo.baz[0].qux],
+          ['foo.baz.1.qux',obj.foo.baz[1].qux],
+        ];
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys(...filters)){
+
+          let [path] = expectedPathValues[i];
+
+          expect(key.path.toString()).to.equal(path);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
+      it(`Overwrites more specific filters with less specifc filters along the same path.`,()=>{
+
+        const filters = ['0.qux', 'qux', '1.qux'];
+
+        const expectedPathValues = [
+          ['foo.baz.0.qux',obj.foo.baz[0].qux],
+          ['foo.baz.1.qux',obj.foo.baz[1].qux]
+        ];
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys(...filters)){
+
+          let [path] = expectedPathValues[i];
+
+          expect(key.path.toString()).to.equal(path);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
+      it(`The wildcard "*" is considered less specific.`,()=>{
+
+        const filters = ['1.qux', '*.qux'];
+
+        const expectedPathValues = [
+          ['foo.baz.0.qux',obj.foo.baz[0].qux],
+          ['foo.baz.1.qux',obj.foo.baz[1].qux]
+        ];
+
+        let i = 0;
+
+        for(const key of keyValueHash.keys(...filters)){
+
+          let [path] = expectedPathValues[i];
+
+          expect(key.path.toString()).to.equal(path);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
+    });
+
+    describe(`entries`,()=>{
+
+      it(`Returns IterableIterator<Key, @value>, breadth first key/value hash map of object.`,()=>{
+
+        const expectedPathValues = [
+          ['foo',obj.foo],
+          ['quux',obj.quux],
+          ['foo.bar',obj.foo.bar],
+          ['foo.baz',obj.foo.baz],
+          ['quux.0',obj.quux[0]],
+          ['quux.1',obj.quux[1]],
+          ['quux.2',obj.quux[2]],
+          ['foo.baz.0',obj.foo.baz[0]],
+          ['foo.baz.1',obj.foo.baz[1]],
+          ['foo.baz.0.qux',obj.foo.baz[0].qux],
+          ['foo.baz.1.qux',obj.foo.baz[1].qux],
+        ];
+
+        let i = 0;
+
+        for(const [key, val] of keyValueHash.entries()){
+
+          let [path, value] = expectedPathValues[i];
+
+          expect(key.path.toString()).to.equal(path);
+
+          expect(val).to.equal(value);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(keyValueHash.size);
+
+      });
+
+      it(`Takes optional key filters and runs through 'keys' method to filters results.`,()=>{
+
+        const filters = ['bar', 1];
+
+        const expectedPathValues = [
+          ['foo.bar',obj.foo.bar],
+          ['quux.1',obj.quux[1]],
+          ['foo.baz.1',obj.foo.baz[1]],
+        ];
+
+        let i = 0;
+
+        for(const [key, val] of keyValueHash.entries(...filters)){
+
+           let [path, value] = expectedPathValues[i];
+
+          expect(key.path.toString()).to.equal(path);
+
+          expect(val).to.equal(value);
 
           i++;
 
@@ -247,6 +397,32 @@ describe(`KeyValueHash`,()=>{
 
       });
 
+      it(`Takes optional key filters and runs through 'keys' method to filters results.`,()=>{
+
+        const filters = ['bar', 1];
+
+        const expectedPathValues = [
+          ['foo.bar',obj.foo.bar],
+          ['quux.1',obj.quux[1]],
+          ['foo.baz.1',obj.foo.baz[1]],
+        ];
+
+        let i = 0;
+
+        for(const val of keyValueHash.values(...filters)){
+
+           let [, value] = expectedPathValues[i];
+
+          expect(val).to.equal(value);
+
+          i++;
+
+        }
+
+        expect(i).to.equal(expectedPathValues.length);
+
+      });
+
     });
 
     describe('rootKeys',()=>{
@@ -266,7 +442,7 @@ describe(`KeyValueHash`,()=>{
 
           expect(rootKey).to.be.instanceof(RootKeyNode);
 
-          expect(rootKey).property('dotNotatedPath').to.equal(path);
+          expect(rootKey.path.toString()).to.equal(path);
 
           i++;
 

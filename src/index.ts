@@ -1,2 +1,3 @@
 import KeyValueHash from './KeyValueHash';
-export default KeyValueHash;
+import Path from './Path';
+export {KeyValueHash as default, Path};
