@@ -1,120 +1,36 @@
-import KeyValueHash from './KeyValueHash';
+import {BaseKeyNode} from 'key-node';
+import PathNotation from 'path-notation';
 
-const PARENT_KEY:unique symbol = Symbol();
-const CHILDREN_KEYS:unique symbol = Symbol(); 
+const PATH_NOTATION:unique symbol = Symbol();
 
-export default class KeyNode extends String {
+export default class KeyNode extends BaseKeyNode<KeyNode>{
 
-  private readonly [PARENT_KEY]:KeyNode;
-  private readonly [CHILDREN_KEYS] = new Set<KeyNode>();
+  private [PATH_NOTATION]:PathNotation;
 
-  constructor(key:string, parentKey:KeyNode = null){
+  get pathNotation():PathNotation{
 
-    super(key);
+    if(this[PATH_NOTATION] === undefined){
 
-    this[PARENT_KEY] = parentKey;
+      const pkeys:KeyNode[] = [this];
 
-    if(parentKey !== null){
+      let pKey = this.PARENT;
 
-      parentKey[CHILDREN_KEYS].add(this);
+      while(pKey !== null){
 
-    }
+        pkeys.unshift(pKey);
 
-  }
-
-  //Accessors
-  get isRootKey():boolean {
-
-    return this[PARENT_KEY] === null;
-
-  }  
-  get isTerminalKey():boolean {
-
-    return this[CHILDREN_KEYS].size === 0;
-
-  }
-
-  get parent():KeyNode{
-
-    return this[PARENT_KEY];
-
-  }
-
-  get [Symbol.toStringTag]() {
-  
-    return this.constructor.name;
-  
-  }
-
-  get dotNotatedPath():string{
-
-    let path:string[] = [];
-
-    for(const key of this.path()){
-
-      path.push(key.toString());
-
-    }
-
-    return path.join('.');
-
-  }
-
-  get numChildren():number{
-
-    return this[CHILDREN_KEYS].size;
-
-  }
-
-  //Mehtods
-  *path():IterableIterator<KeyNode>{
-
-    const path:KeyNode[] = [this];
-
-    let pKey = this[PARENT_KEY];
-
-    while(pKey !== null){
-
-      path.push(pKey);
-
-      pKey = pKey[PARENT_KEY];
-
-    }
-
-    while(path.length > 0){
-
-      yield path.pop();
-
-    }
-
-  }
-
-  children():IterableIterator<KeyNode>{
-
-    return this[CHILDREN_KEYS].values();
-
-  }
-
-  *siblings():IterableIterator<KeyNode>{
-
-    const parent = this[PARENT_KEY];
-
-    if(parent === null){
-
-      return;
-
-    }
-
-    for(const sib of parent.children()){
-
-      if(sib !== this){
-
-        yield sib;
+        pKey = pKey.PARENT;
 
       }
 
+
+      this[PATH_NOTATION] = new PathNotation(pkeys);
+
     }
 
+    return this[PATH_NOTATION];
+
   }
+
 
 }
