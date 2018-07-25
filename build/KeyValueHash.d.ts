@@ -1,5 +1,4 @@
 import KeyNode from './KeyNode';
-import RootKeyNode from './RootKeyNode';
 declare const KEY_VALUE_MAP: unique symbol;
 declare const ROOT_KEYS: unique symbol;
 declare const SRC_OBJECT: unique symbol;
@@ -13,7 +12,7 @@ export default class KeyValueHash<TsrcObj extends object | any[] = object | any[
     entries(...keyFilters: (string | number)[]): IterableIterator<[KeyNode, any]>;
     keys(...keyFilters: (string | number)[]): IterableIterator<KeyNode>;
     values(...keyFilters: (string | number)[]): IterableIterator<any>;
-    rootKeys(): IterableIterator<RootKeyNode>;
+    rootKeys(): IterableIterator<KeyNode>;
     has(keyNode: KeyNode): boolean;
     get(keyNode: KeyNode): any;
     [Symbol.iterator](): IterableIterator<[KeyNode, any]>;

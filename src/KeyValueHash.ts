@@ -1,6 +1,5 @@
 import KeyNode from './KeyNode';
-import RootKeyNode from './RootKeyNode';
-import Path from './Path';
+import PathNotation from 'path-notation';
 
 const entries = function*(obj):IterableIterator<[string | number, any]>{
 
@@ -45,23 +44,23 @@ const INDEX_WILDCARD:unique symbol = Symbol();
 export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]> {
 
   private readonly [KEY_VALUE_MAP]: Map<KeyNode, any>;
-  private readonly [ROOT_KEYS]:Set<RootKeyNode>;
+  private readonly [ROOT_KEYS]:Map<string,KeyNode>;
   private readonly [SRC_OBJECT]:TsrcObj;
 
   constructor(objToHash:TsrcObj){
 
     const keyValueMap = new Map<KeyNode, any>();
-    const rootKeys = new Set<RootKeyNode>();
+    const rootKeys = new Map<string,KeyNode>();
 
     //Root Keys
     for(const [k, val] of entries(objToHash)){
 
-      const rootKey = new RootKeyNode(k.toString(), rootKeys);
+      const rootKey = new KeyNode(k.toString(), rootKeys);
 
       keyValueMap.set(rootKey, val);
 
     }
-
+    
     for(const [pKey, pKeyVal] of keyValueMap){
       
       if(typeof pKeyVal === 'object' && pKeyVal !== null){
@@ -77,7 +76,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
       }
 
     }
-
+    
     this[KEY_VALUE_MAP] = keyValueMap;
     this[ROOT_KEYS] = rootKeys;
     this[SRC_OBJECT] = objToHash;
@@ -139,10 +138,10 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
       let curKeyFilterNode = keyFilterTree;
 
-      const path = Array.from(new Path(keyFilter));
+      const path = Array.from(new PathNotation(keyFilter));
 
 
-      //NOTE: Path searches happen from KeyNode to parent i.e. in reverse.
+      //NOTE: PathNotation searches happen from KeyNode to parent i.e. in reverse.
       while(path.length > 0){
 
         let pathKey:string | symbol = path.pop();
@@ -254,7 +253,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   
   }
 
-  rootKeys():IterableIterator<RootKeyNode>{
+  rootKeys():IterableIterator<KeyNode>{
 
     return this[ROOT_KEYS].values();
 

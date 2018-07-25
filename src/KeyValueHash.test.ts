@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import KeyValueHash from './KeyValueHash';
-import RootKeyNode from './RootKeyNode';
+import KeyNode from './KeyNode';
 
 describe(`KeyValueHash`,()=>{
 
@@ -69,7 +69,7 @@ describe(`KeyValueHash`,()=>{
 
         let [path, value] = expectedPathValues[i];
 
-        expect(key.path.toString()).to.equal(path);
+        expect(key.pathNotation.toString()).to.equal(path);
 
         expect(val).to.equal(value);
 
@@ -135,7 +135,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -161,7 +161,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -187,7 +187,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -233,7 +233,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -258,7 +258,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -283,7 +283,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -319,7 +319,7 @@ describe(`KeyValueHash`,()=>{
 
           let [path, value] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           expect(val).to.equal(value);
 
@@ -347,7 +347,7 @@ describe(`KeyValueHash`,()=>{
 
            let [path, value] = expectedPathValues[i];
 
-          expect(key.path.toString()).to.equal(path);
+          expect(key.pathNotation.toString()).to.equal(path);
 
           expect(val).to.equal(value);
 
@@ -427,7 +427,7 @@ describe(`KeyValueHash`,()=>{
 
     describe('rootKeys',()=>{
 
-      it(`Returns IterableIterator<RootKeyNode>, direct keys of object.`,()=>{
+      it(`Returns IterableIterator<root-KeyNode>, direct keys of object.`,()=>{
 
         const expectedPathValues = [
           ['foo',obj.foo],
@@ -440,9 +440,10 @@ describe(`KeyValueHash`,()=>{
 
           let [path] = expectedPathValues[i];
 
-          expect(rootKey).to.be.instanceof(RootKeyNode);
+          expect(rootKey).to.be.instanceof(KeyNode);
+          expect(rootKey).property('IS_ROOT_KEY').to.be.true;
 
-          expect(rootKey.path.toString()).to.equal(path);
+          expect(rootKey.pathNotation.toString()).to.equal(path);
 
           i++;
 
@@ -458,7 +459,7 @@ describe(`KeyValueHash`,()=>{
 
       it(`Returns true when key node exsists in hash.`,()=>{
 
-        const DNE = new RootKeyNode('DNE',new Set());
+        const DNE = new KeyNode('DNE',new Map());
 
         expect(keyValueHash.has(DNE)).to.be.false
 

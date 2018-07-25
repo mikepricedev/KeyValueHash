@@ -1,147 +1,47 @@
 import {expect} from 'chai';
 import KeyNode from './KeyNode';
-import Path from './Path';
-
+import {BaseKeyNode} from 'key-node';
+import PathNotation from 'path-notation';
 
 describe(`KeyNode`,()=>{
 
-  let fooKey = new KeyNode('foo');
-  let fooBarKey = new KeyNode('bar', fooKey);
-  let fooBazKey = new KeyNode('baz', fooKey);
-  let fooBarQuxKey = new KeyNode('qux', fooBarKey);
+  describe('Instantiation',()=>{
 
-  before(()=>{
+    it(`Inherites from BaseKeyNode`,()=>{
 
-    fooKey = new KeyNode('foo');
-    fooBarKey = new KeyNode('bar', fooKey);
-    fooBazKey = new KeyNode('baz', fooKey);
-    fooBarQuxKey = new KeyNode('qux', fooBarKey);
+      const keyNode = new KeyNode('foo',new Map());
 
-  })
+      expect(keyNode).to.be.instanceof(BaseKeyNode);
 
-  describe('Instaniation',()=>{
-
-    it(`Extends 'String'.`,()=>{
-
-      expect(fooKey).to.be.instanceof(String);
-
-    });
+    })
 
   });
 
   describe('Accessors',()=>{
 
-    describe(`isRootKey`,()=>{
+    describe(`pathNotation`,()=>{
 
-      it(`Returns true when key does not have parent and false when it has parent.`,()=>{
+      const fooKey = new KeyNode('foo',new Map());
+      const fooBarKey = new KeyNode('bar',fooKey);
+      const fooBarBazKey = new KeyNode('baz',fooBarKey);
 
-        expect(fooKey).property('isRootKey').to.be.true;
-        expect(fooBazKey).property('isRootKey').to.be.false;
+      const expectedPath = 'foo.bar.baz';
 
-      });
+      const pathNotation = fooBarBazKey.pathNotation;
 
-    });
+      it(`Returns PathNotation instance of path from root to terminal key.`,()=>{
 
-    describe(`isTerminalKey`,()=>{
+        expect(pathNotation).to.be.instanceOf(PathNotation);
 
-      it(`Returns true when key does not have children and false when it has children.`,()=>{
-
-        expect(fooKey).property('isTerminalKey').to.be.false;
-        expect(fooBarKey).property('isTerminalKey').to.be.false;
-        expect(fooBazKey).property('isTerminalKey').to.be.true;
-        expect(fooBarQuxKey).property('isTerminalKey').to.be.true;
-
+        expect(pathNotation.toString()).to.equal(expectedPath);
 
       });
 
-    });
+      it(`Caches PathNotation instance after fist call.`,()=>{
 
-    describe(`parent`,()=>{
+        const pathNotation2 = fooBarBazKey.pathNotation;
 
-      it(`Returns parent key.`,()=>{
-
-        expect(fooKey).property('parent').to.be.null;
-        expect(fooBazKey).property('parent').to.equal(fooKey);
-
-      });
-
-    });
-
-    describe('path',()=>{
-
-      it(`Returns 'Path' instance representing path to key from root to and including key.`,()=>{
-
-        expect(fooKey).property('path').to.be.instanceof(Path);
-        expect(fooKey.path.toString()).deep.equal('foo');
-
-        expect(fooBazKey).property('path').to.be.instanceof(Path);
-        expect(fooBazKey.path.toString()).deep.equal('foo.baz');
-
-        expect(fooBarKey).property('path').to.be.instanceof(Path);
-        expect(fooBarKey.path.toString()).deep.equal('foo.bar');
-
-        expect(fooBarQuxKey).property('path').to.be.instanceof(Path);
-        expect(fooBarQuxKey.path.toString()).deep.equal('foo.bar.qux');
-
-      });
-
-      it(`Caches 'Path' instance and returns same instance on subsquent gets.`,()=>{
-
-        const path = fooBarQuxKey.path;
-
-        expect(fooBarQuxKey).property('path').to.equal(path);
-
-      });
-
-    });
-
-    describe(`numChildren`,()=>{
-
-      it(`Returns number of children keys.`,()=>{
-
-        expect(fooKey).property('numChildren').to.equal(2);
-        expect(fooBazKey).property('numChildren').to.equal(0);
-        expect(fooBarKey).property('numChildren').to.equal(1);
-        expect(fooBarQuxKey).property('numChildren').to.equal(0);
-
-      });
-
-    });
-
-    describe(`depth`,()=>{
-
-      it(`Returns node depth of key.`,()=>{
-
-        expect(fooKey).property('depth').to.equal(0);
-        expect(fooBazKey).property('depth').to.equal(1);
-        expect(fooBarKey).property('depth').to.equal(1);
-        expect(fooBarQuxKey).property('depth').to.equal(2);
-
-      });
-
-    });
-
-  });
-
-  describe('Methods',()=>{
-
-    describe('children',()=>{
-
-      it(`Returns IterableIterator<Key> of direct children keys.`,()=>{
-
-        expect(Array.from(fooKey.children())).deep.equal([fooBarKey, fooBazKey]);
-        expect(Array.from(fooBarKey.children())).deep.equal([fooBarQuxKey]);
-
-      });
-
-    });
-
-    describe('siblings',()=>{
-
-      it(`Returns IterableIterator<Key> of sibling keys (when Key is NOT root key).`,()=>{
-
-        expect(Array.from(fooBarKey.siblings())).deep.equal([fooBazKey]);
-        expect(Array.from(fooKey.siblings())).have.lengthOf(0);
+        expect(pathNotation2).to.equal(pathNotation);
 
       });
 
