@@ -1,6 +1,6 @@
 {
   "name": "key-value-hash",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Deep hash map of object key/values and breadth first tree via key nodes describing object paths.",
   "main": "build/index.js",
   "scripts": {
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "key-node": "github:raptor9g/keyNode#v1.0.0",
+    "key-value-node": "github:raptor9g/keyValueNode#v0.0.1",
     "path-notation": "github:raptor9g/pathNotation#v1.0.0"
   }
 }

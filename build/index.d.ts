@@ -1,4 +1,4 @@
 import KeyValueHash from './KeyValueHash';
-import KeyNode from './KeyNode';
-export { KeyNode };
+import KeyValueNode from './KeyValueNode';
+export { KeyValueNode };
 export default KeyValueHash;

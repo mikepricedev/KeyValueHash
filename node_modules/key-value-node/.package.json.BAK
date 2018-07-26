@@ -1,0 +1,23 @@
+{
+  "name": "key-value-node",
+  "version": "0.0.1",
+  "description": "Tree Node for key/values in object path hierarchies.",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ts-build": "tsc"
+  },
+  "author": "Michael Price <mikepricedev@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "@types/mocha": "^5.2.4",
+    "@types/node": "^10.5.2",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "ts-config": "github:raptor9g/tsConfig#v0.0.8",
+    "ts-mocha-opts": "github:raptor9g/tsMochaOpts#v0.0.7",
+    "ts-node": "^7.0.0",
+    "typescript": "^2.9.2"
+  }
+}

@@ -1,17 +1,17 @@
 import {expect} from 'chai';
-import KeyNode from './KeyNode';
-import {BaseKeyNode} from 'key-node';
+import KeyValueNode from './KeyValueNode';
+import {BaseKeyValueNode} from 'key-value-node';
 import PathNotation from 'path-notation';
 
-describe(`KeyNode`,()=>{
+describe(`KeyValueNode`,()=>{
 
   describe('Instantiation',()=>{
 
-    it(`Inherites from BaseKeyNode`,()=>{
+    it(`Inherites from BaseKeyValueNode`,()=>{
 
-      const keyNode = new KeyNode('foo',new Map());
+      const keyNode = new KeyValueNode('foo',new Map(), {foo:Symbol()});
 
-      expect(keyNode).to.be.instanceof(BaseKeyNode);
+      expect(keyNode).to.be.instanceof(BaseKeyValueNode);
 
     })
 
@@ -21,9 +21,23 @@ describe(`KeyNode`,()=>{
 
     describe(`pathNotation`,()=>{
 
-      const fooKey = new KeyNode('foo',new Map());
-      const fooBarKey = new KeyNode('bar',fooKey);
-      const fooBarBazKey = new KeyNode('baz',fooBarKey);
+      const rootDoc = {
+
+        foo:{
+
+          bar:{
+
+            baz:Symbol()
+
+          }
+
+        }
+
+      };
+
+      const fooKey = new KeyValueNode('foo', new Map(), rootDoc);
+      const fooBarKey = new KeyValueNode('bar',fooKey);
+      const fooBarBazKey = new KeyValueNode('baz',fooBarKey);
 
       const expectedPath = 'foo.bar.baz';
 

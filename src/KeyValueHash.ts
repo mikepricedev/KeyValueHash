@@ -1,4 +1,4 @@
-import KeyNode from './KeyNode';
+import KeyValueNode from './KeyValueNode';
 import PathNotation from 'path-notation';
 
 const entries = function*(obj):IterableIterator<[string | number, any]>{
@@ -28,48 +28,50 @@ const entries = function*(obj):IterableIterator<[string | number, any]>{
 
 }
 
-const fromKeyNodeToRootKey = function*(keyNode:KeyNode){
+const fromKeyValueNodeToRootKey = function*(keyValueNode:KeyValueNode){
 
-  yield keyNode;
-  yield* keyNode.parents();
+  yield keyValueNode;
+  yield* keyValueNode.parents();
 
 }
 
-const KEY_VALUE_MAP:unique symbol = Symbol();
-const ROOT_KEYS:unique symbol = Symbol();
-const SRC_OBJECT:unique symbol = Symbol();
+const KEY_VALUE_SET:unique symbol = Symbol('KEY_VALUE_SET');
+const ROOT_KEY_VALUES:unique symbol = Symbol('ROOT_KEY_VALUES');
+const SRC_OBJECT:unique symbol = Symbol('SRC_OBJECT');
 
 const INDEX_WILDCARD:unique symbol = Symbol();
 
 export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]> {
 
-  private readonly [KEY_VALUE_MAP]: Map<KeyNode, any>;
-  private readonly [ROOT_KEYS]:Map<string,KeyNode>;
+  private readonly [KEY_VALUE_SET]: Set<KeyValueNode>;
+  private readonly [ROOT_KEY_VALUES]:Map<string,KeyValueNode>;
   private readonly [SRC_OBJECT]:TsrcObj;
 
   constructor(objToHash:TsrcObj){
 
-    const keyValueMap = new Map<KeyNode, any>();
-    const rootKeys = new Map<string,KeyNode>();
+    const keyValueSet = new Set<KeyValueNode>();
+    const rootKeyValues = new Map<string,KeyValueNode>();
 
     //Root Keys
     for(const [k, val] of entries(objToHash)){
 
-      const rootKey = new KeyNode(k.toString(), rootKeys);
+      const rootKey = new KeyValueNode(k.toString(), rootKeyValues, objToHash);
 
-      keyValueMap.set(rootKey, val);
+      keyValueSet.add(rootKey);
 
     }
     
-    for(const [pKey, pKeyVal] of keyValueMap){
-      
+    for(const pKey of keyValueSet){
+       
+      const {VALUE:pKeyVal} = pKey;
+        
       if(typeof pKeyVal === 'object' && pKeyVal !== null){
 
         for(const [k, val] of entries(pKeyVal)){
 
-          const key = new KeyNode(k.toString(), pKey);
+          const key = new KeyValueNode(k.toString(), pKey);
 
-          keyValueMap.set(key, val);
+          keyValueSet.add(key);
 
         }
 
@@ -77,8 +79,8 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
     }
     
-    this[KEY_VALUE_MAP] = keyValueMap;
-    this[ROOT_KEYS] = rootKeys;
+    this[KEY_VALUE_SET] = keyValueSet;
+    this[ROOT_KEY_VALUES] = rootKeyValues;
     this[SRC_OBJECT] = objToHash;
 
   }
@@ -86,7 +88,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   //Accessors
   get size():Number{
 
-    return this[KEY_VALUE_MAP].size;
+    return this[KEY_VALUE_SET].size;
 
   }
 
@@ -97,33 +99,21 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   }
 
   //Methods
-  *entries(...keyFilters:(string | number)[]):IterableIterator<[KeyNode, any]>{
+  *entries(...keyFilters:(string | number)[]):IterableIterator<[KeyValueNode, any]>{
 
-    if(keyFilters.length === 0){
+    for(const keyValueNode of this.keys(...keyFilters)){
 
-      yield *this[KEY_VALUE_MAP].entries();
-
-      return;
+      yield [keyValueNode, keyValueNode.VALUE]
 
     }
 
-    const keyValueMap =  this[KEY_VALUE_MAP];
-
-    for(const key of this.keys(...keyFilters)){
-
-      yield [key, keyValueMap.get(key)];
-
-    }
-  
   }
  
-  *keys(...keyFilters:(string | number)[]):IterableIterator<KeyNode>{
+  *keys(...keyFilters:(string | number)[]):IterableIterator<KeyValueNode>{
     
-    const keysIter = this[KEY_VALUE_MAP].keys();
-
     if(keyFilters.length === 0){
 
-      yield* keysIter;
+      yield* this[KEY_VALUE_SET];
 
       return;
 
@@ -141,7 +131,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
       const path = Array.from(new PathNotation(keyFilter));
 
 
-      //NOTE: PathNotation searches happen from KeyNode to parent i.e. in reverse.
+      //NOTE: PathNotation searches happen from KeyValueNode to parent i.e. in reverse.
       while(path.length > 0){
 
         let pathKey:string | symbol = path.pop();
@@ -194,14 +184,14 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
     }
 
-    //Find Matching KeyNodes
-    for(const keyNode of keysIter){
+    //Find Matching KeyValueNodes
+    for(const keyValueNode of this[KEY_VALUE_SET]){
 
       let curKeyFilterNode = keyFilterTree;
 
-      for(const curKeyNode of fromKeyNodeToRootKey(keyNode)){
+      for(const curKeyValueNode of fromKeyValueNodeToRootKey(keyValueNode)){
 
-        const curKeyLiteral = curKeyNode.toString();
+        const curKeyLiteral = curKeyValueNode.toString();
 
         if(curKeyFilterNode.has(INDEX_WILDCARD)){
         
@@ -221,7 +211,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
         //Match!
         if(curKeyFilterNode.size === 0){
 
-          yield keyNode;
+          yield keyValueNode;
 
           break; 
 
@@ -235,45 +225,33 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
  
   *values(...keyFilters:(string | number)[]):IterableIterator<any>{
     
-    if(keyFilters.length === 0){
+    for(const keyValueNode of this.keys(...keyFilters)){
 
-      yield* this[KEY_VALUE_MAP].values();
-
-      return;
-
-    }
-
-    const keyValueMap =  this[KEY_VALUE_MAP];
-
-    for(const key of this.keys(...keyFilters)){
-
-      yield keyValueMap.get(key);
+      yield keyValueNode.VALUE;
 
     }
   
   }
 
-  rootKeys():IterableIterator<KeyNode>{
+  rootKeys():IterableIterator<KeyValueNode>{
 
-    return this[ROOT_KEYS].values();
-
-  }
-
-  has(keyNode:KeyNode):boolean{
-
-    return this[KEY_VALUE_MAP].has(keyNode);
+    return this[ROOT_KEY_VALUES].values();
 
   }
 
-  get(keyNode:KeyNode):any{
+  has(keyNode:KeyValueNode):boolean{
 
-    return this[KEY_VALUE_MAP].get(keyNode);
+    return this[KEY_VALUE_SET].has(keyNode);
 
   }
 
-  [Symbol.iterator]():IterableIterator<[KeyNode, any]>{
+  *[Symbol.iterator]():IterableIterator<[KeyValueNode, any]>{
 
-    return this[KEY_VALUE_MAP][Symbol.iterator]();
+     for(const keyValueNode of this[KEY_VALUE_SET]){
+
+       yield [keyValueNode, keyValueNode.VALUE];
+
+     } 
 
   }
 
