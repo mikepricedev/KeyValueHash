@@ -1,3 +1,5 @@
+import KeyNodeError from './KeyNodeError';
+
 export const ROOT_KEYS:unique symbol = Symbol('Root Keys Lib');
 const CHILDREN:unique symbol = Symbol('Child Keys Lib');
 const DEPTH:unique symbol = Symbol('Depth Cache');
@@ -23,8 +25,8 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
 
     if(siblingLib.has(keyLiteral)){
 
-      throw new Error(`'${keyLiteral}' already exists in sibling set.`+
-        `  Sibling key literals must be unique.`);
+      throw new KeyNodeError<Tself>(`'${keyLiteral}' already exists in sibling set.`+
+        `  Sibling key literals must be unique.`, siblingLib.get(keyLiteral));
 
     }
 
@@ -50,12 +52,6 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
 
     return this[CHILDREN].size === 0;
 
-  }
-
-  get [Symbol.toStringTag]() {
-  
-    return this.constructor.name;
-  
   }
 
 
@@ -84,6 +80,12 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
 
     return this[DEPTH];
 
+  }
+
+  get [Symbol.toStringTag]() {
+  
+    return this.constructor.name;
+  
   }
 
 

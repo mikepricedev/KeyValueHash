@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {KeyNode} from './KeyNode';
+import KeyNodeError from './KeyNodeError';
 
 describe(`KeyNode`,()=>{
 
@@ -29,20 +30,20 @@ describe(`KeyNode`,()=>{
 
     });
 
-    it(`Throws Error if sibling key literal already exists.`,()=>{
+    it(`Throws KeyNodeError if sibling key literal already exists.`,()=>{
 
       const throws = ()=> new KeyNode('bar', fooKey);
 
-      expect(throws).to.throw(Error);
+      expect(throws).to.throw(KeyNodeError);
       expect(throws).to.throw(`Sibling key literals must be unique.`);
 
     });
 
-    it(`Throws Error if sibling root key literal already exists.`,()=>{
+    it(`Throws KeyNodeError if sibling root key literal already exists.`,()=>{
 
       const throws = ()=> new KeyNode('foo', rootKeyLib);
 
-      expect(throws).to.throw(Error);
+      expect(throws).to.throw(KeyNodeError);
       expect(throws).to.throw(`Sibling key literals must be unique.`);
 
     });

@@ -1,3 +1,4 @@
 import { ROOT_KEYS, BaseKeyNode, KeyNode } from './KeyNode';
-export { ROOT_KEYS, BaseKeyNode };
+import KeyNodeError from './KeyNodeError';
+export { ROOT_KEYS, BaseKeyNode, KeyNodeError };
 export default KeyNode;
