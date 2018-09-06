@@ -37,7 +37,7 @@ class KeyValueHash {
             keyKeyNodeMap.set(rootKey.toString(), new Set([rootKey]));
         }
         for (const pKey of keyValueSet) {
-            const { VALUE: pKeyVal } = pKey;
+            const { value: pKeyVal } = pKey;
             if (typeof pKeyVal === 'object' && pKeyVal !== null) {
                 for (const [k, val] of entries(pKeyVal)) {
                     const key = new key_value_node_1.default(k.toString(), pKey);
@@ -65,7 +65,7 @@ class KeyValueHash {
     //Methods
     *entries(...keyFilters) {
         for (const keyValueNode of this.keys(...keyFilters)) {
-            yield [keyValueNode, keyValueNode.VALUE];
+            yield [keyValueNode, keyValueNode.value];
         }
     }
     *keys(...keyFilters) {
@@ -119,7 +119,7 @@ class KeyValueHash {
     }
     *values(...keyFilters) {
         for (const keyValueNode of this.keys(...keyFilters)) {
-            yield keyValueNode.VALUE;
+            yield keyValueNode.value;
         }
     }
     rootKeys() {
@@ -130,7 +130,7 @@ class KeyValueHash {
     }
     *[Symbol.iterator]() {
         for (const keyValueNode of this[KEY_VALUE_SET]) {
-            yield [keyValueNode, keyValueNode.VALUE];
+            yield [keyValueNode, keyValueNode.value];
         }
     }
     get [Symbol.toStringTag]() {
