@@ -1,4 +1,4 @@
-import KeyValueNode from './KeyValueNode';
+import KeyValueNode from 'key-value-node';
 import PathNotation from 'path-notation';
 
 const entries = function*(obj):IterableIterator<[string | number, any]>{
@@ -35,6 +35,7 @@ const fromKeyValueNodeToRootKey = function*(keyValueNode:KeyValueNode){
 
 }
 
+const KEY_VALUE_MAP:unique symbol = Symbol('KEY_VALUE_MAP');
 const KEY_VALUE_SET:unique symbol = Symbol('KEY_VALUE_SET');
 const ROOT_KEY_VALUES:unique symbol = Symbol('ROOT_KEY_VALUES');
 const SRC_OBJECT:unique symbol = Symbol('SRC_OBJECT');
@@ -43,12 +44,14 @@ const INDEX_WILDCARD:unique symbol = Symbol();
 
 export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]> {
 
+  private readonly [KEY_VALUE_MAP]:Map<string,Set<KeyValueNode>>;
   private readonly [KEY_VALUE_SET]: Set<KeyValueNode>;
   private readonly [ROOT_KEY_VALUES]:Map<string,KeyValueNode>;
   private readonly [SRC_OBJECT]:TsrcObj;
 
   constructor(objToHash:TsrcObj){
 
+    const keyKeyNodeMap = new Map<string,Set<KeyValueNode>>();
     const keyValueSet = new Set<KeyValueNode>();
     const rootKeyValues = new Map<string,KeyValueNode>();
 
@@ -59,11 +62,13 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
       keyValueSet.add(rootKey);
 
+      keyKeyNodeMap.set(rootKey.toString(), new Set([rootKey]));
+
     }
     
     for(const pKey of keyValueSet){
        
-      const {VALUE:pKeyVal} = pKey;
+      const {value:pKeyVal} = pKey;
         
       if(typeof pKeyVal === 'object' && pKeyVal !== null){
 
@@ -73,12 +78,23 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
           keyValueSet.add(key);
 
+          const kStr = key.toString();
+
+          if(!keyKeyNodeMap.has(kStr)){
+
+            keyKeyNodeMap.set(kStr, new Set());
+
+          }
+
+          keyKeyNodeMap.get(kStr).add(key);
+
         }
 
       }
 
     }
     
+    this[KEY_VALUE_MAP] = keyKeyNodeMap;  
     this[KEY_VALUE_SET] = keyValueSet;
     this[ROOT_KEY_VALUES] = rootKeyValues;
     this[SRC_OBJECT] = objToHash;
@@ -103,12 +119,12 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
     for(const keyValueNode of this.keys(...keyFilters)){
 
-      yield [keyValueNode, keyValueNode.VALUE]
+      yield [keyValueNode, keyValueNode.value]
 
     }
 
   }
- 
+
   *keys(...keyFilters:(string | number)[]):IterableIterator<KeyValueNode>{
     
     if(keyFilters.length === 0){
@@ -119,106 +135,85 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
     }
 
-    //Build Key literal and path filters
-    interface IKeyfiltersTree extends Map<string | symbol, IKeyfiltersTree>{}
+    const keyKeyNodeMap = this[KEY_VALUE_MAP];
 
-    const keyFilterTree:IKeyfiltersTree = new Map();
+    const yielded = new Set<KeyValueNode>();
 
     for(const keyFilter of keyFilters){
 
-      let curKeyFilterNode = keyFilterTree;
+      const pathIter = new PathNotation(keyFilter).keys();
+      let pathIterResult = pathIter.next();
+      let {value:filterKey} = pathIterResult;
 
-      const path = Array.from(new PathNotation(keyFilter));
+      //Starting nodes
+      const matchedNodes = Array.from(
+        filterKey === '*' ? 
+          this[KEY_VALUE_SET] 
+          : 
+          (keyKeyNodeMap.has(filterKey) ? keyKeyNodeMap.get(filterKey) : [])
+      );
 
+      pathIterResult = pathIter.next();
+      
 
-      //NOTE: PathNotation searches happen from KeyValueNode to parent i.e. in reverse.
-      while(path.length > 0){
+      while(!pathIterResult.done){
 
-        let pathKey:string | symbol = path.pop();
-
-        switch (pathKey) {
-          
-          //Set wildcards  
-          case "*":
-            
-            pathKey = INDEX_WILDCARD;
-            break;
-          
-          //Unescape wildcard key  
-          case "\\*":
-            
-            pathKey = "*";
-            break;
-        
-        }
-
-        if(curKeyFilterNode.has(pathKey)){
-
-          curKeyFilterNode = curKeyFilterNode.get(pathKey);
-
-          //Existing less complex fitler overides current query.
-          if(curKeyFilterNode.size === 0){
-
-            break;
-
-          }
-
-        } else {
-
-          let childKeyFilterNode = new Map();
-
-          curKeyFilterNode.set(pathKey, childKeyFilterNode);
-
-          curKeyFilterNode = childKeyFilterNode;
-
-        }
-
-      }
-
-      //Override more complex filter.
-      if(curKeyFilterNode.size > 0){
-
-        curKeyFilterNode.clear();
-
-      }
-
-    }
-
-    //Find Matching KeyValueNodes
-    for(const keyValueNode of this[KEY_VALUE_SET]){
-
-      let curKeyFilterNode = keyFilterTree;
-
-      for(const curKeyValueNode of fromKeyValueNodeToRootKey(keyValueNode)){
-
-        const curKeyLiteral = curKeyValueNode.toString();
-
-        if(curKeyFilterNode.has(INDEX_WILDCARD)){
-        
-          curKeyFilterNode = curKeyFilterNode.get(INDEX_WILDCARD);
-
-        } else if(curKeyFilterNode.has(curKeyLiteral)){
-
-          curKeyFilterNode = curKeyFilterNode.get(curKeyLiteral);
-        
-        //NO matches stop  
-        } else {
+        if(matchedNodes.length === 0){
 
           break;
 
         }
 
-        //Match!
-        if(curKeyFilterNode.size === 0){
+        filterKey = pathIterResult.value;
 
-          yield keyValueNode;
+        switch(filterKey){
 
-          break; 
+          //Wildcard
+          case '*':
+
+            for(const matchNode of matchedNodes.splice(0)){
+
+              matchedNodes.push(...matchNode.children());
+
+            }
+
+            break;
+
+          //Escaped wildcard key    
+          case '\\*':
+
+            filterKey = '*';
+
+          default:
+
+            for(const matchedNode of matchedNodes.splice(0)){
+
+              if(matchedNode.hasChild(<string>filterKey)){
+
+                matchedNodes.push(matchedNode.getChild(<string>filterKey));
+
+              }
+
+            }
+
+        }
+
+        pathIterResult = pathIter.next()
+
+      }
+
+      for(const matchedNode of matchedNodes){
+
+        if(!yielded.has(matchedNode)){
+
+          yielded.add(matchedNode);
+
+          yield matchedNode;
 
         }
 
       }
-      
+
     }
   
   }
@@ -227,7 +222,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
     
     for(const keyValueNode of this.keys(...keyFilters)){
 
-      yield keyValueNode.VALUE;
+      yield keyValueNode.value;
 
     }
   
@@ -239,9 +234,9 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
   }
 
-  has(keyNode:KeyValueNode):boolean{
+  has(key:string | number | String):boolean{
 
-    return this[KEY_VALUE_SET].has(keyNode);
+    return this[KEY_VALUE_MAP].has(key.toString());
 
   }
 
@@ -249,7 +244,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
 
      for(const keyValueNode of this[KEY_VALUE_SET]){
 
-       yield [keyValueNode, keyValueNode.VALUE];
+       yield [keyValueNode, keyValueNode.value];
 
      } 
 

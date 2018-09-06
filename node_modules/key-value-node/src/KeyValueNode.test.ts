@@ -48,23 +48,33 @@ describe(`KeyValueNode`,()=>{
 
   });
 
-  describe(`Properties`,()=>{
+  describe(`Accessors`,()=>{
 
-    describe(`VALUE`,()=>{
+    describe(`key`,()=>{
 
-      it(`Is the value of the key in the doc.`,()=>{
+      it(`Is the 'toString' result of the KeyValueNode.`,()=>{
 
-        expect(keyValNode).property('VALUE').to.equal(value);
+        expect(keyValNode).property('key').to.equal(keyValNode.toString());
 
       });
 
     });
 
-    describe(`DOC`,()=>{
+    describe(`value`,()=>{
+
+      it(`Is the value of the key in the doc.`,()=>{
+
+        expect(keyValNode).property('value').to.equal(value);
+
+      });
+
+    });
+
+    describe(`doc`,()=>{
 
       it(`Is the document containing the key/value.`,()=>{
 
-        expect(keyValNode).property('DOC').to.equal(rootDoc);
+        expect(keyValNode).property('doc').to.equal(rootDoc);
 
       });
 
@@ -76,21 +86,7 @@ describe(`KeyValueNode`,()=>{
 
         let keyValNode = new KeyValueNode('bar',rootKeyValNode);
 
-        expect(keyValNode).property('DOC').to.equal(fooVal);
-
-      });
-
-    });
-
-  });
-
-  describe(`Accessors`,()=>{
-
-    describe(`key`,()=>{
-
-      it(`Is the 'toString' result of the KeyValueNode.`,()=>{
-
-        expect(keyValNode).property('key').to.equal(keyValNode.toString());
+        expect(keyValNode).property('doc').to.equal(fooVal);
 
       });
 

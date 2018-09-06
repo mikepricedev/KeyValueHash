@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import KeyValueHash from './KeyValueHash';
-import KeyValueNode from './KeyValueNode';
+import KeyValueNode from 'key-value-node';
 
 describe(`KeyValueHash`,()=>{
 
@@ -177,8 +177,8 @@ describe(`KeyValueHash`,()=>{
         const filters = ['0.qux', 'quux.2'];
 
         const expectedPathValues = [
-          ['quux.2',obj.quux[2]],
           ['foo.baz.0.qux',obj.foo.baz[0].qux],
+          ['quux.2',obj.quux[2]]
         ];
 
         let i = 0;
@@ -243,7 +243,7 @@ describe(`KeyValueHash`,()=>{
 
       });
 
-      it(`Overwrites more specific filters with less specifc filters along the same path.`,()=>{
+      it(`Less specifc filters along the same path will overide more specific filters.`,()=>{
 
         const filters = ['0.qux', 'qux', '1.qux'];
 
@@ -268,28 +268,26 @@ describe(`KeyValueHash`,()=>{
 
       });
 
-      it(`The wildcard "*" is considered less specific.`,()=>{
+      it(`Does not return node multiple times when node matches mutiple filters.`,()=>{
 
         const filters = ['1.qux', '*.qux'];
 
         const expectedPathValues = [
-          ['foo.baz.0.qux',obj.foo.baz[0].qux],
-          ['foo.baz.1.qux',obj.foo.baz[1].qux]
+          ['foo.baz.1.qux',obj.foo.baz[1].qux],
+          ['foo.baz.0.qux',obj.foo.baz[0].qux]
         ];
 
-        let i = 0;
+        const results = [];
 
-        for(const key of keyValueHash.keys(...filters)){
+        for(const result of keyValueHash.keys(...filters)){
 
-          let [path] = expectedPathValues[i];
-
-          expect(key.pathNotation.toString()).to.equal(path);
-
-          i++;
+          results.push([result.pathNotation.toString(), result.value]);
 
         }
 
-        expect(i).to.equal(expectedPathValues.length);
+        expect(results).to.have.lengthOf(expectedPathValues.length);
+
+        expect(results).to.deep.equal(expectedPathValues);
 
       });
 
@@ -457,7 +455,7 @@ describe(`KeyValueHash`,()=>{
 
     describe('has',()=>{
 
-      it(`Returns true when key node exsists in hash.`,()=>{
+      it(`Returns true when key exsists in hash.`,()=>{
 
         const DNE = new KeyValueNode('DNE',new Map(),{});
 

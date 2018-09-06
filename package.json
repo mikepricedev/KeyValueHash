@@ -22,8 +22,7 @@
     "typescript": "^2.9.2"
   },
   "dependencies": {
-    "key-node": "github:raptor9g/keyNode#v1.0.0",
-    "key-value-node": "github:raptor9g/keyValueNode#v0.0.1",
-    "path-notation": "github:raptor9g/pathNotation#v1.0.0"
+    "key-value-node": "github:raptor9g/keyValueNode#v0.0.4",
+    "path-notation": "github:raptor9g/pathNotation#v1.0.1"
   }
 }

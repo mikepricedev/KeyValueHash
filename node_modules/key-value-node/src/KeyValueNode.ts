@@ -1,9 +1,12 @@
 import {BaseKeyNode, KeyNodeError} from 'key-node';
 
+const VALUE:unique symbol = Symbol();
+const DOC:unique symbol = Symbol();
+
 export class BaseKeyValueNode<Tself extends BaseKeyValueNode = any> extends BaseKeyNode<Tself>{
 
-  readonly VALUE:any;
-  readonly DOC:object | any[];
+  private readonly [VALUE]:any;
+  private readonly [DOC]:object | any[];
 
   constructor(key:string, parent:Tself)
   constructor(key:string, parent:Map<string, Tself>, rootDoc:object | any[])
@@ -11,7 +14,7 @@ export class BaseKeyValueNode<Tself extends BaseKeyValueNode = any> extends Base
 
     super(key, parent);
 
-    const doc = this.IS_ROOT_KEY ? rootDoc : (<BaseKeyValueNode>parent).VALUE;
+    const doc = this.IS_ROOT_KEY ? rootDoc : (<BaseKeyValueNode>parent).value;
 
     if(typeof doc !== 'object' || doc === null){
 
@@ -39,8 +42,8 @@ export class BaseKeyValueNode<Tself extends BaseKeyValueNode = any> extends Base
 
     }
 
-    this.VALUE = doc[this.key]
-    this.DOC = doc;
+    this[VALUE] = doc[this.key]
+    this[DOC] = doc;
 
   }
 
@@ -50,6 +53,18 @@ export class BaseKeyValueNode<Tself extends BaseKeyValueNode = any> extends Base
     return this.toString();
 
   }
+
+  get value():any {
+
+    return this[VALUE];
+
+  }
+
+  get doc():object | any[]{
+
+    return this[DOC];
+
+  };
 
 }
 
