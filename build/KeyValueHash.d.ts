@@ -9,7 +9,7 @@ export default class KeyValueHash<TsrcObj extends object | any[] = object | any[
     private readonly [ROOT_KEY_VALUES];
     private readonly [SRC_OBJECT];
     constructor(objToHash: TsrcObj);
-    readonly size: Number;
+    readonly size: number;
     readonly srcObject: TsrcObj;
     entries(...keyFilters: (string | number)[]): IterableIterator<[KeyValueNode, any]>;
     keys(...keyFilters: (string | number)[]): IterableIterator<KeyValueNode>;
