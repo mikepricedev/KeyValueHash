@@ -102,7 +102,7 @@ export default class KeyValueHash<TsrcObj extends object| any[] = object| any[]>
   }
 
   //Accessors
-  get size():Number{
+  get size():number{
 
     return this[KEY_VALUE_SET].size;
 
