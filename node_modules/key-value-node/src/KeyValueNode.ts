@@ -5,8 +5,8 @@ const DOC:unique symbol = Symbol();
 
 export class BaseKeyValueNode<Tself extends BaseKeyValueNode = any> extends BaseKeyNode<Tself>{
 
-  private readonly [VALUE]:any;
-  private readonly [DOC]:object | any[];
+  private readonly [VALUE]:any = undefined;
+  private readonly [DOC]:object | any[] = undefined;
 
   constructor(key:string, parent:Tself)
   constructor(key:string, parent:Map<string, Tself>, rootDoc:object | any[])
@@ -16,34 +16,12 @@ export class BaseKeyValueNode<Tself extends BaseKeyValueNode = any> extends Base
 
     const doc = this.IS_ROOT_KEY ? rootDoc : (<BaseKeyValueNode>parent).value;
 
-    if(typeof doc !== 'object' || doc === null){
+    if(typeof doc === 'object' && doc !== null){
 
-      let docStr:string;
-      switch (typeof doc) {
-        case "object":
-          docStr = "null";
-          break;
-        case "undefined":
-          docStr = "undefined";
-          break;
-        default:
-          try {
-            docStr = doc.toString();
-            break;
-          } catch {}
-          try {
-            docStr = `${doc}`;
-            break;
-          } catch {}
-          docStr = typeof doc;
-      }
-
-      throw new KeyNodeError(`Cannot read property '${key}' of ${docStr}.`, this);
+      this[VALUE] = doc[this.key];
+      this[DOC] = doc;
 
     }
-
-    this[VALUE] = doc[this.key]
-    this[DOC] = doc;
 
   }
 

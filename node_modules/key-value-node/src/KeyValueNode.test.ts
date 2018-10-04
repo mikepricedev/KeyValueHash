@@ -26,26 +26,6 @@ describe(`KeyValueNode`,()=>{
 
     });
 
-    it(`Should throw KeyNodeError if doc is not a non-null object.`,()=>{
-
-      const notObjs = [
-        1,
-        'string',
-        true,
-        null
-      ];
-
-      for(const nonObj of notObjs){
-
-        const throws = ()=> keyValNode = new KeyValueNode(key, new Map(), <any>nonObj);
-
-        expect(throws).to.throw(KeyNodeError);
-        expect(throws).to.throw(`Cannot read property`);
-
-      }
-
-    })
-
   });
 
   describe(`Accessors`,()=>{
@@ -68,6 +48,68 @@ describe(`KeyValueNode`,()=>{
 
       });
 
+      it(`Is undefined when rootDoc is NOT a non-null object.`,()=>{
+
+        const notObjs = [
+          1,
+          'string',
+          true,
+          null
+        ];
+
+        let i = 0;
+
+        for(const nonObj of notObjs){
+
+          keyValNode = new KeyValueNode(key, new Map(), <any>nonObj);
+
+          expect(keyValNode).property('value').to.be.undefined;
+
+          i++;
+
+        }
+
+        if(i == 0){
+
+          throw new Error(`Test did NOT run.`);
+
+        }
+
+      });
+
+      it(`Is undefined when parent KeyValueNode.value is NOT a non-null object.`,()=>{
+
+        const notObjs = [
+          1,
+          'string',
+          true,
+          null
+        ];
+
+        let i = 0;
+
+        for(const nonObj of notObjs){
+
+          rootDoc = {foo:nonObj};
+          keyValNode = new KeyValueNode(key, new Map(), rootDoc);
+
+          const childKeyValNode = new KeyValueNode('bar', keyValNode);
+
+          expect(childKeyValNode).property('value').to.be.undefined;
+
+          i++;
+
+        }
+
+        if(i == 0){
+
+          throw new Error(`Test did NOT run.`);
+          
+
+        }
+
+      });
+
     });
 
     describe(`doc`,()=>{
@@ -87,6 +129,67 @@ describe(`KeyValueNode`,()=>{
         let keyValNode = new KeyValueNode('bar',rootKeyValNode);
 
         expect(keyValNode).property('doc').to.equal(fooVal);
+
+      });
+
+      it(`Returns undefined when rootDoc is NOT a non-null object.`,()=>{
+
+        const notObjs = [
+          1,
+          'string',
+          true,
+          null
+        ];
+
+        let i = 0;
+
+        for(const nonObj of notObjs){
+
+          keyValNode = new KeyValueNode(key, new Map(), <any>nonObj);
+
+          expect(keyValNode).property('doc').to.be.undefined;
+
+          i++;
+
+        }
+
+        if(i == 0){
+
+          throw new Error(`Test did NOT run.`);
+
+        }
+
+      });
+
+      it(`Is undefined when parent KeyValueNode.value is NOT a non-null object.`,()=>{
+
+        const notObjs = [
+          1,
+          'string',
+          true,
+          null
+        ];
+
+        let i = 0;
+
+        for(const nonObj of notObjs){
+
+          rootDoc = {foo:nonObj};
+          keyValNode = new KeyValueNode(key, new Map(), rootDoc);
+
+          const childKeyValNode = new KeyValueNode('bar', keyValNode);
+
+          expect(childKeyValNode).property('doc').to.be.undefined;
+
+          i++;
+
+        }
+
+        if(i == 0){
+
+          throw new Error(`Test did NOT run.`);
+          
+        }
 
       });
 
