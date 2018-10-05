@@ -56,12 +56,7 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
     //Lazy cache
     if(this[ROOT_KEY] === undefined){
 
-      let keyNode = <Tself><any>this;
-
-      //Get and cache parents; lazy
-      for(keyNode of this.parents());
-
-      this[ROOT_KEY] = keyNode;
+      this[ROOT_KEY] = this.pathToKey().next().value;
 
     }
 
@@ -109,15 +104,7 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
     //Lazy cache
     if(this[PATH_NOTATION] === undefined){
 
-      const pkeys:BaseKeyNode<Tself>[] = [this];
-
-      for(const pKey of this.parents()){
-
-        pkeys.unshift(pKey);
-
-      }
-
-      this[PATH_NOTATION] = new PathNotation(pkeys);
+      this[PATH_NOTATION] = new PathNotation(this.pathToKey());
 
     }
 
@@ -199,6 +186,30 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
       yield pKey;
 
       pKey = pKey.PARENT
+
+    }
+  
+  }
+
+  *pathToKey(inlcudeSelf = true):IterableIterator<Tself>{
+
+    if(this.IS_ROOT_KEY){
+
+      if(inlcudeSelf){
+
+        yield <any>this;
+
+      }
+
+      return;
+     
+    }
+
+    yield* this.PARENT.pathToKey(true);
+
+    if(inlcudeSelf){
+
+      yield <any>this;
 
     }
   

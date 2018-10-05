@@ -25,6 +25,7 @@ export declare abstract class BaseKeyNode<Tself extends BaseKeyNode = any> exten
     getSibling(siblingKey: string | number): Tself;
     children(): IterableIterator<Tself>;
     parents(): IterableIterator<Tself>;
+    pathToKey(inlcudeSelf?: boolean): IterableIterator<Tself>;
     siblings(): IterableIterator<Tself>;
 }
 export declare class KeyNode extends BaseKeyNode<KeyNode> {

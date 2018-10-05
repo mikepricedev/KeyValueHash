@@ -272,7 +272,36 @@ describe(`KeyNode`,()=>{
 
     });
 
+    describe(`pathTokey`,()=>{
 
+      it(`Returns IterableIterator<Key> of keys from the root to and including the current Key.`,
+        ()=>{
+
+          expect(Array.from(fooBarQuxKey.pathToKey())).to.deep.equal([
+            fooKey,
+            fooBarKey,
+            fooBarQuxKey
+          ]);
+
+      });
+
+      it(`Optionally does not inlcuded current Key if false is passed.`,()=>{
+
+        expect(Array.from(fooBarQuxKey.pathToKey(false))).to.deep.equal([
+          fooKey,
+          fooBarKey
+        ]);
+
+      });
+
+      it(`Root Key(s) yield self or nothing if false is passed.`,()=>{
+
+        expect(Array.from(fooKey.pathToKey())).to.deep.equal([fooKey]);
+        expect(Array.from(fooKey.pathToKey(false))).to.have.lengthOf(0);
+
+      });
+
+    });
 
   });
 
