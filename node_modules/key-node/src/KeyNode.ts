@@ -40,11 +40,13 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
       this[ROOT_KEYS] = siblingLib;
       this.PARENT = null;
       this.IS_ROOT_KEY = true;
+      this[DEPTH] = 0;
 
     } else {
 
       this.PARENT = <Tself>parent;
       this.IS_ROOT_KEY = false;
+      this[DEPTH] = (<Tself>parent).depth + 1
 
     }
 
@@ -78,22 +80,6 @@ export abstract class BaseKeyNode<Tself extends BaseKeyNode = any> extends Strin
   }
 
   get depth():number {
-
-    //Lazy cache
-    if(this[DEPTH] === undefined){
-
-      let depth = 0;
-
-      //Get and cache parents; lazy
-      for(const pKey of this.parents()){
-
-        depth++;
-
-      }
-
-      this[DEPTH] = depth;
-
-    }
 
     return this[DEPTH];
 
